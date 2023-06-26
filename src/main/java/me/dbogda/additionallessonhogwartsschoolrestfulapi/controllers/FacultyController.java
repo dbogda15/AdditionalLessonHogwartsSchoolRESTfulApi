@@ -1,11 +1,16 @@
 package me.dbogda.additionallessonhogwartsschoolrestfulapi.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import me.dbogda.additionallessonhogwartsschoolrestfulapi.model.Faculty;
 import me.dbogda.additionallessonhogwartsschoolrestfulapi.service.FacultyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
+
 @RestController
 @RequestMapping("/hogwarts/faculties")
 public class FacultyController {
@@ -16,23 +21,32 @@ public class FacultyController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> createStudent(@RequestBody Faculty faculty) {
-        if (faculty!=null) {
-            String creationInfo = facultyService.create(faculty);
-            return ResponseEntity.ok(creationInfo);
+    @Operation(summary = "Create a new faculty")
+    public ResponseEntity<Faculty> createFaculty(@RequestBody Faculty faculty) {
+        if (!faculty.getName().isEmpty()||!faculty.getColor().isEmpty()) {
+            Faculty newFaculty = facultyService.create(faculty);
+            return ResponseEntity.ok(newFaculty);
         } return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/get-all")
-    public ResponseEntity<HashMap<Long, Faculty>> getAllFaculties() {
-        HashMap<Long, Faculty> facultyHashMap = facultyService.getFacultiesMap();
-        if (facultyHashMap.isEmpty()) {
+    @Operation(summary = "List of faculties")
+    public ResponseEntity<List<Faculty>> getAllFaculties() {
+        List<Faculty> faculties = facultyService.getFacultiesList();
+        if (faculties.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(facultyHashMap);
+        return ResponseEntity.ok(faculties);
     }
 
     @GetMapping("/faculty-by-id")
+    @Operation(summary = "Find a faculty by id")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Faculty not found!"
+            )
+    })
     public ResponseEntity<Faculty> getFacultyById(@RequestParam Long id) {
         Faculty faculty = facultyService.getFacultyById(id);
         if (faculty != null) {
@@ -42,26 +56,32 @@ public class FacultyController {
     }
 
     @PutMapping
-    public ResponseEntity<Faculty> updateFacultyById(@RequestBody Faculty faculty, @RequestParam Long id) {
-        if (facultyService.getFacultiesMap().containsKey(id)) {
-            Faculty faculty1 = facultyService.updateFacultyById(id, faculty);
+    @Operation(summary = "Update information about the faculty")
+    public ResponseEntity<Faculty> updateFaculty(@RequestBody Faculty faculty) {
+            Faculty faculty1 = facultyService.updateFaculty(faculty);
+            if (faculty1 != null) {
             return ResponseEntity.ok(faculty1);
         }
         return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping
+    @Operation(summary = "Delete faculty by ID")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Faculty not found!"
+            )
+    })
     public ResponseEntity<String> deleteFacultyById(@RequestParam Long id) {
         String deletingInfo = facultyService.deleteFacultyById(id);
-        if (deletingInfo == null) {
-            return ResponseEntity.notFound().build();
-        }
         return ResponseEntity.ok(deletingInfo);
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<HashMap<Long, Faculty>> getFacultiesMapWithFilter(@RequestParam String color) {
-        HashMap<Long, Faculty> result = facultyService.getFacultiesWithFilter(color);
+    @Operation(summary = "List of faculties sorted by color")
+    public ResponseEntity<List<Faculty>> getFacultiesMapWithFilter(@RequestParam String color) {
+        List <Faculty> result = facultyService.getFacultiesWithFilter(color);
         if (result.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

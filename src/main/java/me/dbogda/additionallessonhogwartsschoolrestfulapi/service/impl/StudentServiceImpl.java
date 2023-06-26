@@ -1,67 +1,48 @@
 package me.dbogda.additionallessonhogwartsschoolrestfulapi.service.impl;
 
 import me.dbogda.additionallessonhogwartsschoolrestfulapi.model.Student;
+import me.dbogda.additionallessonhogwartsschoolrestfulapi.repository.StudentRepository;
 import me.dbogda.additionallessonhogwartsschoolrestfulapi.service.StudentService;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 public class StudentServiceImpl implements StudentService {
+    private final StudentRepository studentRepository;
 
-    HashMap<Long, Student> studentHashMap = new HashMap<>();
+    public StudentServiceImpl(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
+    }
 
     @Override
-    public String create(Student student) {
-        if (student != null && !studentHashMap.containsKey(student.getId())) {
-            studentHashMap.put(student.getId(), student);
-            return student.getName() + " has been created!";
-        }
-        return null;
+    public Student create(Student student) {
+        return studentRepository.save(student);
     }
 
     @Override
     public Student getStudentById(Long id) {
-       if(!studentHashMap.isEmpty()) {
-           return studentHashMap.get(id);
-       } return null;
+       return studentRepository.findById(id).get();
     }
 
     @Override
-    public HashMap<Long, Student> getStudentsMap() {
-        return studentHashMap;
+    public List<Student> getStudentsList() {
+        return studentRepository.findAll();
     }
 
     @Override
-    public Student updateStudentById(Long id, Student student) {
-        if (studentHashMap.containsKey(id)) {
-            return studentHashMap.put(id, student);
-        }
-        return null;
+    public Student updateStudent(Student student) {
+        return studentRepository.save(student);
     }
 
     @Override
     public String deleteStudentById(Long id) {
-        if (studentHashMap.containsKey(id)) {
-            studentHashMap.remove(id);
-            return "Student has been deleted!";
-        }
-        return null;
+        studentRepository.deleteById(id);
+        return "Student has been deleted!";
     }
 
     @Override
-    public HashMap<Long, Student> getStudentsWithFilter(int age) {
-        return studentHashMap.entrySet()
-                .stream()
-                .filter(s -> Objects.equals(age, s.getValue().getAge()))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (x, y) -> x,
-                        HashMap::new
-                ));
+    public List <Student> getStudentsWithFilter(int age) {
+        return studentRepository.findStudentByAge(age);
     }
 }

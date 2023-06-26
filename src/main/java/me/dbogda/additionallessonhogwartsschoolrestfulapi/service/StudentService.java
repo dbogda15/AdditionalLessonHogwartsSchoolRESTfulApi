@@ -4,13 +4,14 @@ import org.springframework.stereotype.Service;
 import me.dbogda.additionallessonhogwartsschoolrestfulapi.model.Student;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public interface StudentService {
-    String create(Student student);
+    Student create(Student student);
     Student getStudentById(Long id);
-    HashMap<Long, Student> getStudentsMap();
-    Student updateStudentById(Long id, Student student);
+    List<Student> getStudentsList();
+    Student updateStudent(Student student);
     String deleteStudentById(Long id);
-    HashMap<Long, Student> getStudentsWithFilter(int age);
+    List<Student> getStudentsWithFilter(int age);
 }
