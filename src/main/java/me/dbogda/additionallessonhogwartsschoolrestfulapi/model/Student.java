@@ -1,15 +1,7 @@
 package me.dbogda.additionallessonhogwartsschoolrestfulapi.model;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Objects;
-@Data
-@NoArgsConstructor
 @Entity
 public class Student {
     @Id
@@ -17,11 +9,23 @@ public class Student {
     private Long id;
     private String name;
     private int age;
+    @ManyToOne
+    private Faculty faculty;
+
+    public Student() {
+    }
 
     public Student(Long id, String name, int age) {
         this.id = id;
         this.name = name;
         this.age = age;
+    }
+
+    public Student(Long id, String name, int age, Faculty faculty) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.faculty = faculty;
     }
 
     public Long getId() {
@@ -46,6 +50,14 @@ public class Student {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public Faculty getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(Faculty faculty) {
+        this.faculty = faculty;
     }
 
     @Override

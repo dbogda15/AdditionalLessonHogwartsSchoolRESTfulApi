@@ -3,43 +3,41 @@ package me.dbogda.additionallessonhogwartsschoolrestfulapi.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import me.dbogda.additionallessonhogwartsschoolrestfulapi.model.Faculty;
+import me.dbogda.additionallessonhogwartsschoolrestfulapi.DTO.FacultyDTO;
+import me.dbogda.additionallessonhogwartsschoolrestfulapi.DTO.StudentDTO;
 import me.dbogda.additionallessonhogwartsschoolrestfulapi.service.FacultyService;
+import me.dbogda.additionallessonhogwartsschoolrestfulapi.service.StudentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
 @RequestMapping("/hogwarts/faculties")
 public class FacultyController {
     private final FacultyService facultyService;
+    private final StudentService studentService;
 
-    public FacultyController(FacultyService facultyService) {
+    public FacultyController(FacultyService facultyService, StudentService studentService) {
         this.facultyService = facultyService;
+        this.studentService = studentService;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     @Operation(summary = "Create a new faculty")
-    public ResponseEntity<Faculty> createFaculty(@RequestBody Faculty faculty) {
-        if (!faculty.getName().isEmpty()||!faculty.getColor().isEmpty()) {
-            Faculty newFaculty = facultyService.create(faculty);
-            return ResponseEntity.ok(newFaculty);
-        } return ResponseEntity.notFound().build();
+    public ResponseEntity<FacultyDTO> createFaculty(@RequestBody FacultyDTO facultyDTO) {
+            FacultyDTO newFacultyDTO = facultyService.create(facultyDTO);
+            return ResponseEntity.ok(newFacultyDTO);
     }
 
-    @GetMapping("/get-all")
+    @GetMapping("/all")
     @Operation(summary = "List of faculties")
-    public ResponseEntity<List<Faculty>> getAllFaculties() {
-        List<Faculty> faculties = facultyService.getFacultiesList();
-        if (faculties.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<FacultyDTO>> getAllFaculties() {
+        List<FacultyDTO> faculties = facultyService.getFacultiesList();
         return ResponseEntity.ok(faculties);
     }
 
-    @GetMapping("/faculty-by-id")
+    @GetMapping("/find-by-id")
     @Operation(summary = "Find a faculty by id")
     @ApiResponses(value = {
             @ApiResponse(
@@ -47,20 +45,17 @@ public class FacultyController {
                     description = "Faculty not found!"
             )
     })
-    public ResponseEntity<Faculty> getFacultyById(@RequestParam Long id) {
-        Faculty faculty = facultyService.getFacultyById(id);
-        if (faculty != null) {
-            return ResponseEntity.ok(faculty);
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<FacultyDTO> getFacultyById(@RequestParam Long id) {
+        FacultyDTO faculty = facultyService.getFacultyById(id);
+        return ResponseEntity.ok(faculty);
     }
 
     @PutMapping
     @Operation(summary = "Update information about the faculty")
-    public ResponseEntity<Faculty> updateFaculty(@RequestBody Faculty faculty) {
-            Faculty faculty1 = facultyService.updateFaculty(faculty);
-            if (faculty1 != null) {
-            return ResponseEntity.ok(faculty1);
+    public ResponseEntity<FacultyDTO> updateFaculty(@RequestBody FacultyDTO facultyDTO) {
+            FacultyDTO updatedFacultyDTO = facultyService.updateFaculty(facultyDTO);
+            if (updatedFacultyDTO != null) {
+            return ResponseEntity.ok(updatedFacultyDTO);
         }
         return ResponseEntity.notFound().build();
     }
@@ -78,13 +73,42 @@ public class FacultyController {
         return ResponseEntity.ok(deletingInfo);
     }
 
-    @GetMapping("/filter")
-    @Operation(summary = "List of faculties sorted by color")
-    public ResponseEntity<List<Faculty>> getFacultiesMapWithFilter(@RequestParam String color) {
-        List <Faculty> result = facultyService.getFacultiesWithFilter(color);
-        if (result.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/color-filter")
+    @Operation(summary = "The list of faculties sorted by color")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Faculty not found!"
+            )
+    })
+    public ResponseEntity<List<FacultyDTO>> getFacultiesMapWithFilter(@RequestParam String color) {
+        List <FacultyDTO> result = facultyService.getFacultiesWithFilter(color);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/name-filter")
+    @Operation(summary = "The list of faculties sorted by name")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Faculty not found!"
+            )
+    })
+    public ResponseEntity<List<FacultyDTO>> getFacultiesSortedByName(@RequestParam String name) {
+        List<FacultyDTO> result = facultyService.findFacultyByName(name);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/students-from-faculty")
+    @Operation(summary = "Here you can get a list of students from a certain faculty")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Faculty not found!"
+            )
+    })
+    public ResponseEntity<List<StudentDTO>> getStudentsFromCurrentFaculty (@RequestParam Long id) {
+        List<StudentDTO> students = studentService.findStudentsByFacultyId(id);
+        return ResponseEntity.ok(students);
     }
 }

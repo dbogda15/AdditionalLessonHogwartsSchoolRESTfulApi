@@ -1,17 +1,16 @@
 package me.dbogda.additionallessonhogwartsschoolrestfulapi.service;
 
-import org.springframework.stereotype.Service;
-import me.dbogda.additionallessonhogwartsschoolrestfulapi.model.Student;
+import me.dbogda.additionallessonhogwartsschoolrestfulapi.DTO.StudentDTO;
 
-import java.util.HashMap;
 import java.util.List;
 
-@Service
 public interface StudentService {
-    Student create(Student student);
-    Student getStudentById(Long id);
-    List<Student> getStudentsList();
-    Student updateStudent(Student student);
+    StudentDTO create(StudentDTO studentDTO);
+    StudentDTO getStudentById(Long id);
+    List<StudentDTO> getStudentsList();
+    StudentDTO updateStudent(StudentDTO studentDTO);
     String deleteStudentById(Long id);
-    List<Student> getStudentsWithFilter(int age);
+    List<StudentDTO> getStudentsWithFilter(int age);
+    List<StudentDTO> findStudentByAgeBetween(int min, int max);
+    List<StudentDTO> findStudentsByFacultyId(Long id);
 }
